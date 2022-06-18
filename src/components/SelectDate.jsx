@@ -1,13 +1,30 @@
 /** @jsxImportSource theme-ui */
 
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { PrimaryButton } from "./Buttons";
 import { ArrowDown, ArrowUp } from "./Icons";
+
+const dataFetch = {
+  horarios: ["9:00 AM", "10:00 AM", "11:00 AM"],
+};
 
 const SelectDate = () => {
   const [sucursalSelected, setSucursalSelected] = useState("");
   const [labelSelected, setLabelSelected] = useState("Sucursal");
   const [date, setDate] = useState("");
+  const [horaSelected, setHoraSelected] = useState("");
   const [showOptions, setShowOptions] = useState(false);
+  const [horarios, setHorarios] = useState(null);
+
+  useEffect(() => {
+    getHorarios();
+  }, [sucursalSelected, date]);
+
+  const getHorarios = () => {
+    if (sucursalSelected && date) {
+      setHorarios(dataFetch.horarios);
+    }
+  };
 
   const handleSelect = (e) => {
     setSucursalSelected(e.target.getAttribute("value"));
@@ -70,6 +87,18 @@ const SelectDate = () => {
     const dateSelected = e.target.value;
     setDate(dateSelected);
     console.log(dateSelected);
+  };
+
+  const handleSelectHorario = (item) => {
+    setHoraSelected(item);
+  };
+
+  const handleNextButton = () => {
+    if (horaSelected) {
+      console.log("Listo para el paso 2");
+    } else {
+      console.log("Aun no se selecciona un horario");
+    }
   };
 
   return (
@@ -228,8 +257,71 @@ const SelectDate = () => {
             onChange={handleDate}
           />
         </div>
-        <div>
-          <p>Horarios disponibles</p>
+        <div
+          sx={{
+            width: "90%",
+            maxWidth: "360PX",
+            textAlign: "center",
+            pb: "20px",
+          }}
+        >
+          {(() => {
+            if (horarios && horarios.length > 0) {
+              return (
+                <>
+                  <p>Horarios disponibles</p>
+                  {horarios.map((item, index) => {
+                    return (
+                      <section
+                        key={index}
+                        sx={{
+                          ".active": {
+                            bg: "primary",
+                            color: "white",
+                          },
+                        }}
+                      >
+                        <div
+                          sx={{
+                            border: "1px solid red",
+                            borderColor: "primary",
+                            height: "50px",
+                            color: "primary",
+                            fontSize: 3,
+                            fontWeight: "heading",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            mb: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSelectHorario(item)}
+                          className={`${horaSelected == item ? "active" : ""}`}
+                        >
+                          <div>{item}</div>
+                        </div>
+                      </section>
+                    );
+                  })}
+                  <PrimaryButton
+                    width="100%"
+                    height="50px"
+                    handleClick={handleNextButton}
+                  >
+                    Siguiente
+                  </PrimaryButton>
+                </>
+              );
+            } else if (horarios && horarios.length === 0) {
+              return <p>No hay horarios en esta fecha</p>;
+            } else if (horarios == null) {
+              return (
+                <p>
+                  Selecciona una sucursal y una fecha para checar disponibilidad
+                </p>
+              );
+            }
+          })()}
         </div>
       </div>
     </section>

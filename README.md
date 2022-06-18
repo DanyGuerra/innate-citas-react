@@ -1,3 +1,3 @@
 # Citas Innate
 
-Página de Innate
+Página de citas de Innate
