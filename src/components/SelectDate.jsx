@@ -98,17 +98,14 @@ const SelectDate = () => {
 
   const handleNextButton = () => {
     if (horaSelected) {
-      router.push(
-        {
-          pathname: "/crearperfil",
-          query: {
-            sucursalSelected,
-            horaSelected,
-            date,
-          },
+      router.push({
+        pathname: "/crearperfil",
+        query: {
+          sucursalSelected,
+          horaSelected,
+          date,
         },
-        "/crearperfil"
-      );
+      });
     } else {
       console.log("Aun no se selecciona un horario");
     }

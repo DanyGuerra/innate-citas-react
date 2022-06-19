@@ -1,17 +1,9 @@
 import Head from "next/head";
-import Image from "next/image";
 import Header from "../src/components/Header";
 import PagoForm from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
-import { useRouter } from "next/router";
 
 export default function Pago() {
-  const router = useRouter();
-  const {
-    query: { sucursalSelected, horaSelected, date },
-  } = router;
-  console.log(sucursalSelected, horaSelected, date);
-
   return (
     <>
       <Head>

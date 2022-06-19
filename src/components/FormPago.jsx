@@ -2,8 +2,17 @@
 import React, { useEffect, useRef } from "react";
 import { IconCheck, IconExclamation } from "./Icons";
 import { PrimaryButton } from "./Buttons";
+import { useRouter } from "next/router";
 
 const inputsInitial = [
+  {
+    name: "cardName",
+    type: "text",
+    placeholder: "Nombre de tarjetahabiente",
+    validation: null,
+    value: "",
+    errorMessage: "",
+  },
   {
     name: "cardNumber",
     type: "tel",
@@ -13,7 +22,7 @@ const inputsInitial = [
     errorMessage: "",
   },
   {
-    name: "month",
+    name: "monthExp",
     type: "tel",
     placeholder: "MM",
     validation: null,
@@ -23,7 +32,7 @@ const inputsInitial = [
     style: "small",
   },
   {
-    name: "year",
+    name: "yearExp",
     type: "tel",
     placeholder: "AAAA",
     validation: null,
@@ -34,7 +43,7 @@ const inputsInitial = [
     style: "small",
   },
   {
-    name: "cvv",
+    name: "cvvExp",
     type: "tel",
     placeholder: "CVV",
     validation: null,
@@ -49,16 +58,20 @@ const inputsInitial = [
 const CrearPerfil = () => {
   const [inputs, setInputs] = React.useState([]);
 
+  const router = useRouter();
+  const { query } = router;
+
   useEffect(() => {
     setInputs(inputsInitial);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     allValidation();
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
       console.log("Validacion correcta");
+      const token = await new Promise(getToken);
     } else {
       console.log("Validacion incorrecta");
     }
@@ -143,6 +156,46 @@ const CrearPerfil = () => {
       }
     }
     return input;
+  };
+
+  const getToken = () => {
+    const [cardName, cardNumber, monthExp, yearExp, cvvExp] = getInputsValues();
+
+    let data = {
+      card: {
+        number: cardNumber.cardNumber,
+        name: cardName.cardName,
+        exp_year: yearExp.yearExp,
+        exp_month: monthExp.monthExp,
+        cvc: cvvExp.cvvExp,
+      },
+    };
+
+    function successToken(token) {
+      resolve(token);
+    }
+
+    function errorToken(err) {
+      /* err keys: object, type, message, message_to_purchaser, param, code */
+      reject(err);
+      console.log(err);
+    }
+
+    //Definir la llave ppublica dependiendo de la sucursal
+    Conekta.setPublicKey(publicKey);
+    Conekta.Token.create(data, successToken, errorToken);
+  };
+
+  const getInputsValues = () => {
+    const values = inputs.map((item) => {
+      const key = item.name;
+      const value = item.value;
+      const obj = {};
+      obj[key] = value;
+      return obj;
+    });
+
+    return values;
   };
 
   return (

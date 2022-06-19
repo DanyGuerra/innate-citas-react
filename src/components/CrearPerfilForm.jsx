@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import { IconCheck, IconExclamation } from "./Icons";
 import { PrimaryButton } from "./Buttons";
+import { useRouter } from "next/router";
 
 const inputsInitial = [
   {
@@ -33,7 +34,12 @@ const inputsInitial = [
 ];
 
 const CrearPerfil = () => {
+  const router = useRouter();
   const [inputs, setInputs] = React.useState([]);
+
+  const {
+    query: { sucursalSelected, horaSelected, date },
+  } = router;
 
   useEffect(() => {
     setInputs(inputsInitial);
@@ -45,9 +51,33 @@ const CrearPerfil = () => {
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
       console.log("Validacion correcta");
+      const [name, email, phone] = getInputsValues();
+      router.push({
+        pathname: "/pago",
+        query: {
+          sucursalSelected,
+          horaSelected,
+          date,
+          ...name,
+          ...email,
+          ...phone,
+        },
+      });
     } else {
       console.log("Validacion incorrecta");
     }
+  };
+
+  const getInputsValues = () => {
+    const values = inputs.map((item) => {
+      const key = item.name;
+      const value = item.value;
+      const obj = {};
+      obj[key] = value;
+      return obj;
+    });
+
+    return values;
   };
 
   function isEmail(email) {
