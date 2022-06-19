@@ -5,44 +5,30 @@ import { PrimaryButton } from "./Buttons";
 
 const inputsInitial = [
   {
-    name: "cardNumber",
-    type: "tel",
-    placeholder: "Número de tarjeta",
+    name: "name",
+    type: "text",
+    placeholder: "Nombre completo",
+    validation: null,
+    value: "",
+    minLength: 4,
+    errorMessage: "",
+  },
+  {
+    name: "email",
+    type: "email",
+    placeholder: "Correo Electrónico",
     validation: null,
     value: "",
     errorMessage: "",
   },
   {
-    name: "month",
+    name: "phone",
     type: "tel",
-    placeholder: "MM",
+    placeholder: "Teléfono",
     validation: null,
     value: "",
+    minLength: 7,
     errorMessage: "",
-    maxLength: 2,
-    style: "small",
-  },
-  {
-    name: "year",
-    type: "tel",
-    placeholder: "AAAA",
-    validation: null,
-    value: "",
-    size: 4,
-    errorMessage: "",
-    maxLength: 4,
-    style: "small",
-  },
-  {
-    name: "cvv",
-    type: "tel",
-    placeholder: "CVV",
-    validation: null,
-    value: "",
-    minLength: 3,
-    maxLength: 4,
-    errorMessage: "",
-    style: "small",
   },
 ];
 
@@ -165,7 +151,7 @@ const CrearPerfil = () => {
             fontWeight: "heading",
           }}
         >
-          Pago cita
+          Crear perfil
         </h1>
         <div
           sx={{
@@ -204,17 +190,18 @@ const CrearPerfil = () => {
                 justifyContent: "center",
               }}
             >
-              3
+              2
             </div>
-            <div>Formulario para el pago de tu cita</div>
+            <div>Necesitamos los siguientes datos</div>
           </div>
           <form
             sx={{
               display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
               gap: "20px",
-              columnGap: "5%",
               width: "90%",
               maxWidth: "360px",
             }}
@@ -223,19 +210,19 @@ const CrearPerfil = () => {
               <div
                 key={index}
                 sx={{
-                  width: `${input.style === "small" ? "30%" : "100%"}`,
+                  width: "100%",
                   position: "relative",
                 }}
               >
                 <small
                   sx={{
                     position: "absolute",
-                    bottom: `${input.style === "small" ? "-30px" : "-18px"}`,
+                    bottom: "-18px",
                     left: 0,
                     color: "red",
                   }}
                 >
-                  {input.style === "small" ? null : input.errorMessage}
+                  {input.errorMessage}
                 </small>
                 <input
                   sx={{
@@ -287,7 +274,7 @@ const CrearPerfil = () => {
             <div
               sx={{
                 width: "100%",
-                mt: "20px",
+                maxWidth: "300px",
               }}
             >
               <PrimaryButton

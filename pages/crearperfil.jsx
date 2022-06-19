@@ -1,7 +1,6 @@
 import Head from "next/head";
-import Image from "next/image";
 import Header from "../src/components/Header";
-import PagoForm from "../src/components/FormPago";
+import CrearPerfilForm from "../src/components/CrearPerfilForm";
 import Footer from "../src/components/Footer";
 import { useRouter } from "next/router";
 
@@ -20,7 +19,7 @@ export default function Pago() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <PagoForm></PagoForm>
+      <CrearPerfilForm></CrearPerfilForm>
       <Footer />
     </>
   );

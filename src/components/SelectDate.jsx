@@ -3,18 +3,21 @@
 import React, { useEffect, useState } from "react";
 import { PrimaryButton } from "./Buttons";
 import { ArrowDown, ArrowUp } from "./Icons";
+import { useRouter } from "next/router";
 
 const dataFetch = {
   horarios: ["9:00 AM", "10:00 AM", "11:00 AM"],
 };
 
 const SelectDate = () => {
-  const [sucursalSelected, setSucursalSelected] = useState("");
   const [labelSelected, setLabelSelected] = useState("Sucursal");
   const [date, setDate] = useState("");
+  const [sucursalSelected, setSucursalSelected] = useState("");
   const [horaSelected, setHoraSelected] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [horarios, setHorarios] = useState(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     getHorarios();
@@ -95,7 +98,17 @@ const SelectDate = () => {
 
   const handleNextButton = () => {
     if (horaSelected) {
-      console.log("Listo para el paso 2");
+      router.push(
+        {
+          pathname: "/crearperfil",
+          query: {
+            sucursalSelected,
+            horaSelected,
+            date,
+          },
+        },
+        "/crearperfil"
+      );
     } else {
       console.log("Aun no se selecciona un horario");
     }
