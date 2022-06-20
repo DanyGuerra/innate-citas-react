@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Header from "../src/components/Header";
-import PagoForm from "../src/components/FormPago";
+import FormPago from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
 
 export default function Pago() {
@@ -12,7 +12,7 @@ export default function Pago() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <PagoForm></PagoForm>
+      <FormPago></FormPago>
       <Footer />
     </>
   );

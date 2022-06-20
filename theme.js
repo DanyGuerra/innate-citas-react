@@ -23,7 +23,7 @@ const theme = {
     background: "#fffcf2",
     primary: "#008833",
     secondary: "#d7c29e",
-    muted: "#f6f6f6",
+    muted: "#979797",
     blur: "#7f7d784d",
   },
   text: {

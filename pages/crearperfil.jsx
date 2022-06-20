@@ -2,15 +2,8 @@ import Head from "next/head";
 import Header from "../src/components/Header";
 import CrearPerfilForm from "../src/components/CrearPerfilForm";
 import Footer from "../src/components/Footer";
-import { useRouter } from "next/router";
 
 export default function Pago() {
-  const router = useRouter();
-  const {
-    query: { sucursalSelected, horaSelected, date },
-  } = router;
-  console.log(sucursalSelected, horaSelected, date);
-
   return (
     <>
       <Head>

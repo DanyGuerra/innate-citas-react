@@ -3,6 +3,10 @@ import React, { useEffect, useRef } from "react";
 import { IconCheck, IconExclamation } from "./Icons";
 import { PrimaryButton } from "./Buttons";
 import { useRouter } from "next/router";
+import ModalMessage from "./ModalMessage";
+import ModalLoading from "./ModalLoading";
+import Image from "next/image";
+import conecktaLogo from "../../assets/img/coneckta-logo.png";
 
 const inputsInitial = [
   {
@@ -55,8 +59,10 @@ const inputsInitial = [
   },
 ];
 
-const CrearPerfil = () => {
+const FormPago = () => {
   const [inputs, setInputs] = React.useState([]);
+  const [showModalMessage, setShowModalMessage] = React.useState(false);
+  const [showModalLoading, setShowModalLoading] = React.useState(false);
 
   const router = useRouter();
   const { query } = router;
@@ -72,6 +78,7 @@ const CrearPerfil = () => {
     if (validation.every((el) => el === true)) {
       console.log("Validacion correcta");
       const token = await new Promise(getToken);
+      console.log(token);
     } else {
       console.log("Validacion incorrecta");
     }
@@ -158,7 +165,7 @@ const CrearPerfil = () => {
     return input;
   };
 
-  const getToken = () => {
+  const getToken = (resolve, reject) => {
     const [cardName, cardNumber, monthExp, yearExp, cvvExp] = getInputsValues();
 
     let data = {
@@ -182,7 +189,7 @@ const CrearPerfil = () => {
     }
 
     //Definir la llave ppublica dependiendo de la sucursal
-    Conekta.setPublicKey(publicKey);
+    Conekta.setPublicKey(process.env.CONEKTA_PUBLIC_KEY);
     Conekta.Token.create(data, successToken, errorToken);
   };
 
@@ -198,8 +205,121 @@ const CrearPerfil = () => {
     return values;
   };
 
+  const pagar = function (token, datosOrden) {
+    return new Promise(async function (resolve, reject) {
+      try {
+        const opcionesCrearCliente = {
+          method: "POST",
+          // mode: "no-cors",
+          headers: {
+            //Definir llave privada dependiendo de la sucursal
+            // "Access-Control-Allow-Origin": "http://127.0.0.1:5500/INNATE/pago.html",
+            Authorization: privateKey,
+            Accept: "application/vnd.conekta-v2.0.0+json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            livemode: false,
+            name: datosOrden.paciente,
+            email: datosOrden.correo,
+            phone: datosOrden.telefono,
+            payment_sources: [
+              {
+                type: "card",
+                token_id: token.id, //Token paso anterior response.id
+              },
+            ],
+          }),
+        };
+
+        const createClient = await fetch(
+          "https://api.conekta.io/customers",
+          opcionesCrearCliente
+        );
+
+        const client = await createClient.json();
+        const opcionesCrearOrden = {
+          method: "POST",
+          headers: {
+            //Definir llave privada dependiendo de la sucursal
+            Authorization: privateKey,
+            Accept: "application/vnd.conekta-v2.0.0+json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: datosOrden.precioCentavos,
+            currency: "MXN",
+            amount_refunded: 0,
+            customer_info: {
+              customer_id: client.id, //Id del cliente paso anterior
+            },
+
+            metadata: {
+              Integration: "API", //Nos indica que te has integrado por tu cuenta utilizando la API Conekta
+              Integration_Type: "PHP 8.0", //Nos menciona el lenguaje que utilizas para integrarte
+              // Objeto de Metadatos para ingresar información de interés de tu comercio y después recuperarlo por Reporting, puedes ingresar máximo 100 elementos y puedes ingresar caracteres especiales
+            },
+            line_items: [
+              {
+                //Informacion de la orden
+                name: "Cita sucursal del valle",
+                unit_price: datosOrden.precioCentavos,
+                quantity: 1,
+                description: "Description",
+              },
+            ],
+            charges: [
+              {
+                payment_method: {
+                  //"monthly_installments": 3, //Este parámetro se usa para incluir MSI en cargo único
+                  type: "default",
+                },
+              },
+            ],
+            discount_lines: [
+              {
+                code: "Cupón de descuento en orden sin cargo",
+                amount: 0,
+                type: "loyalty", //'loyalty', 'campaign', 'coupon' o 'sign'
+              },
+            ],
+            tax_lines: [
+              {
+                description: "IVA",
+                amount: 0,
+                metadata: {
+                  // Objeto de Metadatos para ingresar información de interés de tu comercio y después recuperarlo por Reporting, puedes ingresar máximo 100 elementos y puedes ingresar caracteres especiales
+                  IEPS: "1800",
+                },
+              },
+            ],
+          }),
+        };
+
+        const createOrder = await fetch(
+          "https://api.conekta.io/orders",
+          opcionesCrearOrden
+        );
+        const order = await createOrder.json();
+        if (createOrder.ok) {
+          resolve(order);
+        } else {
+          reject({ message: order.details[0].debug_message });
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
   return (
     <>
+      <ModalMessage
+        show={showModalMessage}
+        handleClose={() => setShowModalMessage(false)}
+        message={"Algo salio mal"}
+      ></ModalMessage>
+      <ModalLoading show={showModalLoading}></ModalLoading>
       <section
         sx={{
           width: "100%",
@@ -220,6 +340,7 @@ const CrearPerfil = () => {
         >
           Pago cita
         </h1>
+
         <div
           sx={{
             width: "90%",
@@ -230,7 +351,7 @@ const CrearPerfil = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "flex-start",
-            gap: "20px",
+            gap: "0px",
             padding: "20px 0px",
             height: "auto",
             minHeight: "500px",
@@ -243,6 +364,8 @@ const CrearPerfil = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: "10px",
+              mb: 30,
+              mt: "20px",
             }}
           >
             <div
@@ -261,6 +384,62 @@ const CrearPerfil = () => {
             </div>
             <div>Formulario para el pago de tu cita</div>
           </div>
+
+          <div
+            sx={{
+              width: "90%",
+              maxWidth: "360px",
+              color: "primary",
+              display: "flex",
+              flexDirection: "column",
+              textAlign: "center",
+              gap: "20px",
+              mb: 30,
+              p: {
+                m: 0,
+              },
+              ".title-price": {
+                fontSize: 4,
+                fontWeight: "heading",
+              },
+              ".title": {
+                fontSize: 2,
+                fontWeight: "heading",
+              },
+              ".title-small": {
+                fontSize: 1,
+                color: "muted",
+              },
+            }}
+          >
+            <div>
+              <p>El costo de tu cita es de:</p>
+              <p className="title-price">$1,499.00</p>
+            </div>
+            <div>
+              <p className="title">DEL VALLE</p>
+              <p className="title-small">SUCURSAL</p>
+            </div>
+            <div sx={{ display: "flex", justifyContent: "space-between" }}>
+              <div
+                sx={{
+                  textAlign: "left",
+                }}
+              >
+                <p className="title">20/06/2022</p>
+                <p className="title-small">FECHA</p>
+              </div>
+              <div
+                sx={{
+                  textAlign: "right",
+                }}
+              >
+                <p className="title">10:00 AM</p>
+                <p className="title-small">HORARIO</p>
+              </div>
+            </div>
+          </div>
+
           <form
             sx={{
               display: "flex",
@@ -340,7 +519,6 @@ const CrearPerfil = () => {
             <div
               sx={{
                 width: "100%",
-                mt: "20px",
               }}
             >
               <PrimaryButton
@@ -352,10 +530,39 @@ const CrearPerfil = () => {
               </PrimaryButton>
             </div>
           </form>
+
+          <div
+            sx={{
+              mb: "50px",
+              p: {
+                color: "muted",
+                fontSize: 1,
+                m: "8px 0px",
+              },
+              display: "flex",
+              flexDirection: "column",
+              gap: "30px",
+            }}
+          >
+            <p>Al ingresar tus datos, aceptas los términos y condiciones</p>
+            <div
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <p>Para procesar tu pago contamos con la herramienta</p>
+              <div sx={{ width: "80%" }}>
+                <Image src={conecktaLogo} layout="responsive"></Image>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </>
   );
 };
 
-export default CrearPerfil;
+export default FormPago;
