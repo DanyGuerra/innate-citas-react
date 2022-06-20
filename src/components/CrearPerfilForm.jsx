@@ -37,10 +37,6 @@ const CrearPerfil = () => {
   const router = useRouter();
   const [inputs, setInputs] = React.useState([]);
 
-  const {
-    query: { sucursalSelected, horaSelected, date },
-  } = router;
-
   useEffect(() => {
     setInputs(inputsInitial);
   }, []);
@@ -55,9 +51,7 @@ const CrearPerfil = () => {
       router.push({
         pathname: "/pago",
         query: {
-          sucursalSelected,
-          horaSelected,
-          date,
+          ...router.query,
           ...name,
           ...email,
           ...phone,
@@ -267,7 +261,7 @@ const CrearPerfil = () => {
                     fontSize: 3,
                     color: "primary",
                     "&::placeholder": {
-                      color: "#E5E5E5",
+                      color: "#C4C4C4",
                     },
                   }}
                   name={input.name}

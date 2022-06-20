@@ -12,7 +12,9 @@
     "@emotion/react": "^11.9.0",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
+    "googleapis": "^103.0.0",
     "next": "12.1.6",
+    "nodemailer": "^6.7.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "theme-ui": "^0.14.6"

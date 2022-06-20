@@ -63,12 +63,22 @@ const FormPago = () => {
   const [inputs, setInputs] = React.useState([]);
   const [showModalMessage, setShowModalMessage] = React.useState(false);
   const [showModalLoading, setShowModalLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState(false);
+  const [sucursalForSwitch, setSucursalForSwitch] = React.useState(false);
 
   const router = useRouter();
   const { query } = router;
 
+  const {
+    query: { labelSucursalSelected, horaSelected, date, sucursalSelected },
+  } = router;
+
+  const conecktaPublic = process.env.CONEKTA_PUBLIC_KEY;
+  const conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY;
+
   useEffect(() => {
     setInputs(inputsInitial);
+    setSucursalForSwitch(sucursalSelected);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -77,8 +87,63 @@ const FormPago = () => {
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
       console.log("Validacion correcta");
-      const token = await new Promise(getToken);
-      console.log(token);
+
+      try {
+        setShowModalLoading(true);
+        const token = await new Promise(getToken);
+        const orden = await pagar(token);
+        console.log(orden);
+
+        if (orden) {
+          const mailSend = await fetch("api/sendmail/", {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+              order_id: "id_1234123412341234",
+              correo: "luisdanyramirez@hotmail.com",
+            }),
+          });
+          console.log(mailSend);
+
+          const dataToSpread = await fetch("/api/spreadsheet/", {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+              name: "Luis Daniel",
+              email: "dev@example.com",
+              sucursal: "Del Valle",
+              fecha: "2022/06/04",
+              pago: "Pagado",
+              origen: "adworks",
+            }),
+          });
+
+          // router.push({
+          //   pathname: "/confirmacion",
+          //   query: {
+          //     labelSucursalSelected,
+          //     horaSelected,
+          //     date,
+          //   },
+          // });
+          setShowModalLoading(false);
+        } else {
+          setShowModalLoading(false);
+          setErrorMessage("Algo salió mal");
+          setShowModalMessage(true);
+        }
+      } catch (error) {
+        console.error(error);
+        setShowModalLoading(false);
+        setErrorMessage(error.message_to_purchaser);
+        setShowModalMessage(true);
+      }
     } else {
       console.log("Validacion incorrecta");
     }
@@ -185,11 +250,11 @@ const FormPago = () => {
     function errorToken(err) {
       /* err keys: object, type, message, message_to_purchaser, param, code */
       reject(err);
-      console.log(err);
+      console.error(err);
     }
 
     //Definir la llave ppublica dependiendo de la sucursal
-    Conekta.setPublicKey(process.env.CONEKTA_PUBLIC_KEY);
+    Conekta.setPublicKey(conecktaPublic);
     Conekta.Token.create(data, successToken, errorToken);
   };
 
@@ -205,7 +270,7 @@ const FormPago = () => {
     return values;
   };
 
-  const pagar = function (token, datosOrden) {
+  const pagar = function (token) {
     return new Promise(async function (resolve, reject) {
       try {
         const opcionesCrearCliente = {
@@ -214,15 +279,15 @@ const FormPago = () => {
           headers: {
             //Definir llave privada dependiendo de la sucursal
             // "Access-Control-Allow-Origin": "http://127.0.0.1:5500/INNATE/pago.html",
-            Authorization: privateKey,
+            Authorization: conecktaPrivate,
             Accept: "application/vnd.conekta-v2.0.0+json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             livemode: false,
-            name: datosOrden.paciente,
-            email: datosOrden.correo,
-            phone: datosOrden.telefono,
+            name: query.name,
+            email: query.email,
+            phone: query.phone,
             payment_sources: [
               {
                 type: "card",
@@ -242,12 +307,12 @@ const FormPago = () => {
           method: "POST",
           headers: {
             //Definir llave privada dependiendo de la sucursal
-            Authorization: privateKey,
+            Authorization: conecktaPrivate,
             Accept: "application/vnd.conekta-v2.0.0+json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            amount: datosOrden.precioCentavos,
+            amount: 149900,
             currency: "MXN",
             amount_refunded: 0,
             customer_info: {
@@ -256,14 +321,14 @@ const FormPago = () => {
 
             metadata: {
               Integration: "API", //Nos indica que te has integrado por tu cuenta utilizando la API Conekta
-              Integration_Type: "PHP 8.0", //Nos menciona el lenguaje que utilizas para integrarte
+              Integration_Type: "NODE", //Nos menciona el lenguaje que utilizas para integrarte
               // Objeto de Metadatos para ingresar información de interés de tu comercio y después recuperarlo por Reporting, puedes ingresar máximo 100 elementos y puedes ingresar caracteres especiales
             },
             line_items: [
               {
                 //Informacion de la orden
-                name: "Cita sucursal del valle",
-                unit_price: datosOrden.precioCentavos,
+                name: `Cita Innate sucursal ${query.sucursalSelected}`,
+                unit_price: 149900,
                 quantity: 1,
                 description: "Description",
               },
@@ -317,7 +382,7 @@ const FormPago = () => {
       <ModalMessage
         show={showModalMessage}
         handleClose={() => setShowModalMessage(false)}
-        message={"Algo salio mal"}
+        message={errorMessage ? errorMessage : "Algo salió mal"}
       ></ModalMessage>
       <ModalLoading show={showModalLoading}></ModalLoading>
       <section
@@ -417,7 +482,11 @@ const FormPago = () => {
               <p className="title-price">$1,499.00</p>
             </div>
             <div>
-              <p className="title">DEL VALLE</p>
+              <p className="title">
+                {labelSucursalSelected
+                  ? labelSucursalSelected.toUpperCase()
+                  : ""}
+              </p>
               <p className="title-small">SUCURSAL</p>
             </div>
             <div sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -426,7 +495,7 @@ const FormPago = () => {
                   textAlign: "left",
                 }}
               >
-                <p className="title">20/06/2022</p>
+                <p className="title">{date ? date.replaceAll("-", "/") : ""}</p>
                 <p className="title-small">FECHA</p>
               </div>
               <div
@@ -434,7 +503,7 @@ const FormPago = () => {
                   textAlign: "right",
                 }}
               >
-                <p className="title">10:00 AM</p>
+                <p className="title">{horaSelected ? horaSelected : ""}</p>
                 <p className="title-small">HORARIO</p>
               </div>
             </div>
@@ -482,7 +551,7 @@ const FormPago = () => {
                     fontSize: 3,
                     color: "primary",
                     "&::placeholder": {
-                      color: "#E5E5E5",
+                      color: "#C4C4C4",
                     },
                   }}
                   name={input.name}

@@ -117,6 +117,7 @@ const SelectDate = () => {
           sucursalSelected,
           horaSelected,
           date,
+          labelSucursalSelected: labelSelected,
         },
       });
     } else {
