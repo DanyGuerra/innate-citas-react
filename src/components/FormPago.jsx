@@ -106,7 +106,6 @@ const FormPago = () => {
               correo: "luisdanyramirez@hotmail.com",
             }),
           });
-          console.log(mailSend);
 
           const dataToSpread = await fetch("/api/spreadsheet/", {
             headers: {
@@ -124,14 +123,28 @@ const FormPago = () => {
             }),
           });
 
-          // router.push({
-          //   pathname: "/confirmacion",
-          //   query: {
-          //     labelSucursalSelected,
-          //     horaSelected,
-          //     date,
-          //   },
-          // });
+          if (mailSend.ok) {
+            router.push({
+              pathname: "/confirmacion",
+              query: {
+                labelSucursalSelected,
+                horaSelected,
+                date,
+                emailSend: "true",
+              },
+            });
+          } else {
+            router.push({
+              pathname: "/confirmacion",
+              query: {
+                labelSucursalSelected,
+                horaSelected,
+                date,
+                emailSend: "false",
+              },
+            });
+          }
+
           setShowModalLoading(false);
         } else {
           setShowModalLoading(false);

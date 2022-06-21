@@ -48,15 +48,18 @@ const CrearPerfil = () => {
     if (validation.every((el) => el === true)) {
       console.log("Validacion correcta");
       const [name, email, phone] = getInputsValues();
-      router.push({
-        pathname: "/pago",
-        query: {
-          ...router.query,
-          ...name,
-          ...email,
-          ...phone,
+      router.push(
+        {
+          pathname: "/pago",
+          query: {
+            ...router.query,
+            ...name,
+            ...email,
+            ...phone,
+          },
         },
-      });
+        "/pago"
+      );
     } else {
       console.log("Validacion incorrecta");
     }
