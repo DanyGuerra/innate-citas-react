@@ -10,14 +10,6 @@ import conecktaLogo from "../../assets/img/coneckta-logo.png";
 
 const inputsInitial = [
   {
-    name: "cardName",
-    type: "text",
-    placeholder: "Nombre de tarjetahabiente",
-    validation: null,
-    value: "",
-    errorMessage: "",
-  },
-  {
     name: "cardNumber",
     type: "tel",
     placeholder: "Número de tarjeta",
@@ -70,7 +62,13 @@ const FormPago = () => {
   const { query } = router;
 
   const {
-    query: { labelSucursalSelected, horaSelected, date, sucursalSelected },
+    query: {
+      labelSucursalSelected,
+      horaSelected,
+      date,
+      sucursalSelected,
+      source,
+    },
   } = router;
 
   const conecktaPublic = process.env.CONEKTA_PUBLIC_KEY;
@@ -92,7 +90,6 @@ const FormPago = () => {
         setShowModalLoading(true);
         const token = await new Promise(getToken);
         const orden = await pagar(token);
-        console.log(orden);
 
         if (orden) {
           const mailSend = await fetch("api/sendmail/", {
@@ -102,8 +99,8 @@ const FormPago = () => {
             },
             method: "POST",
             body: JSON.stringify({
-              order_id: "id_1234123412341234",
-              correo: "luisdanyramirez@hotmail.com",
+              order_id: orden.id,
+              correo: orden.customer_info.email,
             }),
           });
 
@@ -114,12 +111,12 @@ const FormPago = () => {
             },
             method: "POST",
             body: JSON.stringify({
-              name: "Luis Daniel",
-              email: "dev@example.com",
-              sucursal: "Del Valle",
-              fecha: "2022/06/04",
-              pago: "Pagado",
-              origen: "adworks",
+              name: orden.customer_info.name,
+              email: orden.customer_info.email,
+              sucursal: labelSucursalSelected,
+              fecha: date.replaceAll("-", "/"),
+              pago: orden.payment_status,
+              origen: source,
             }),
           });
 
@@ -133,6 +130,7 @@ const FormPago = () => {
                 emailSend: "true",
               },
             });
+            setShowModalLoading(false);
           } else {
             router.push({
               pathname: "/confirmacion",
@@ -144,8 +142,6 @@ const FormPago = () => {
               },
             });
           }
-
-          setShowModalLoading(false);
         } else {
           setShowModalLoading(false);
           setErrorMessage("Algo salió mal");
@@ -244,12 +240,12 @@ const FormPago = () => {
   };
 
   const getToken = (resolve, reject) => {
-    const [cardName, cardNumber, monthExp, yearExp, cvvExp] = getInputsValues();
+    const [cardNumber, monthExp, yearExp, cvvExp] = getInputsValues();
 
     let data = {
       card: {
         number: cardNumber.cardNumber,
-        name: cardName.cardName,
+        name: query.name,
         exp_year: yearExp.yearExp,
         exp_month: monthExp.monthExp,
         cvc: cvvExp.cvvExp,
@@ -291,7 +287,7 @@ const FormPago = () => {
           // mode: "no-cors",
           headers: {
             //Definir llave privada dependiendo de la sucursal
-            // "Access-Control-Allow-Origin": "http://127.0.0.1:5500/INNATE/pago.html",
+            "Access-Control-Allow-Origin": "https://admin.conekta.com",
             Authorization: conecktaPrivate,
             Accept: "application/vnd.conekta-v2.0.0+json",
             "Content-Type": "application/json",
@@ -320,6 +316,7 @@ const FormPago = () => {
           method: "POST",
           headers: {
             //Definir llave privada dependiendo de la sucursal
+            "Access-Control-Allow-Origin": "https://admin.conekta.com",
             Authorization: conecktaPrivate,
             Accept: "application/vnd.conekta-v2.0.0+json",
             "Content-Type": "application/json",
