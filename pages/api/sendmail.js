@@ -3,10 +3,40 @@ const nodemailer = require("nodemailer");
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const order_id = req.body.order_id;
-    const correo = req.body.correo;
+    const name = req.body.name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const sucursal = req.body.sucursal;
+    const fecha = req.body.fecha;
+    const hora = req.body.hora;
+    const precio = req.body.precio;
+    const origen = req.body.origen;
+
+    const data = {
+      order_id,
+      name,
+      email,
+      phone,
+      sucursal,
+      fecha,
+      hora,
+      precio,
+      origen,
+    };
+    console.log(data);
+
+    if (!email) {
+      return res.status(404).json({ message: "Bad request" });
+    }
+
+    if (!isEmail(email)) {
+      return res.status(400).json({
+        message: "Correo no válido",
+      });
+    }
 
     try {
-      const mail = await sendMail(correo, order_id);
+      const mail = await sendMail(data);
       console.log(mail);
       res.status(200).json({ message: "ok" });
     } catch (error) {
@@ -15,7 +45,7 @@ export default async function handler(req, res) {
   }
 }
 
-const sendMail = (email, order_id) => {
+const sendMail = (data) => {
   return new Promise((resolve, reject) => {
     let transport = nodemailer.createTransport({
       host: process.env.SEND_MAIL_HOST_MAIL,
@@ -28,11 +58,19 @@ const sendMail = (email, order_id) => {
     });
 
     let mailOptions = {
-      from: '"CITA INNATE" <from@example.com>',
-      to: email,
+      from: '"INNATE CITAS" <from@example.com>',
+      to: data.email,
       subject: "Cita agendada",
       text: "Confirmacion de cita",
-      html: `<b>Hola!! </b><br> Tu cita ha sido agendada con exito.<br />El id de tu cita es <b>${order_id}</b>`,
+      html: `<b>Hola!! </b><br> Tu cita ha sido agendada con éxito.<br />Tu cita quedo agendada con la siguiente información: <br><br>
+      <b>Nombre: </b> ${data.name}<br>
+      <b>Teléfono: </b> ${data.phone}<br>
+      <b>Sucursal: </b> ${data.sucursal}<br>
+      <b>Fecha: </b> ${data.fecha}<br>
+      <b>Hora: </b> ${data.hora}<br>
+      <b>Precio: </b> ${data.precio}<br>
+      <b>Id del pago: </b> ${data.order_id}<br>
+      `,
     };
 
     transport.sendMail(mailOptions, (error, info) => {
@@ -45,3 +83,9 @@ const sendMail = (email, order_id) => {
     });
   });
 };
+
+function isEmail(email) {
+  return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+    email
+  );
+}

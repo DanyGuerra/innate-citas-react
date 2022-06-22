@@ -4,9 +4,11 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const name = req.body.name;
     const email = req.body.email;
+    const phone = req.body.phone;
     const sucursal = req.body.sucursal;
     const fechaCita = req.body.fecha;
-    const pago = req.body.pago;
+    const hora = req.body.hora;
+    const precio = req.body.precio;
     const origen = req.body.origen;
 
     function isEmail(email) {
@@ -67,7 +69,17 @@ export default async function handler(req, res) {
         valueInputOption: "USER_ENTERED", // The information will be passed according to what the usere passes in as date, number or text
         resource: {
           values: [
-            [name, email, sucursal, fechaCita, pago, origen, fechaRegistro],
+            [
+              name,
+              email,
+              phone,
+              sucursal,
+              fechaCita,
+              hora,
+              precio,
+              origen,
+              fechaRegistro,
+            ],
           ],
         },
       });

@@ -99,8 +99,15 @@ const FormPago = () => {
             },
             method: "POST",
             body: JSON.stringify({
+              name: orden.customer_info.name,
+              email: orden.customer_info.email,
+              phone: orden.customer_info.phone,
+              sucursal: labelSucursalSelected,
+              fecha: date.replaceAll("-", "/"),
+              hora: horaSelected,
+              precio: "1450",
+              origen: source,
               order_id: orden.id,
-              correo: orden.customer_info.email,
             }),
           });
 
@@ -113,9 +120,11 @@ const FormPago = () => {
             body: JSON.stringify({
               name: orden.customer_info.name,
               email: orden.customer_info.email,
+              phone: orden.customer_info.phone,
               sucursal: labelSucursalSelected,
               fecha: date.replaceAll("-", "/"),
-              pago: orden.payment_status,
+              hora: horaSelected,
+              precio: "1450",
               origen: source,
             }),
           });
