@@ -8,6 +8,9 @@ import ModalLoading from "./ModalLoading";
 import Image from "next/image";
 import conecktaLogo from "../../assets/img/coneckta-logo.png";
 
+let conecktaPublic = "";
+let conecktaPrivate = "";
+
 const inputsInitial = [
   {
     name: "cardNumber",
@@ -71,21 +74,35 @@ const FormPago = () => {
     },
   } = router;
 
-  const conecktaPublic = process.env.CONEKTA_PUBLIC_KEY;
-  const conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY;
-
   useEffect(() => {
     setInputs(inputsInitial);
     setSucursalForSwitch(sucursalSelected);
   }, []);
+
+  useEffect(() => {
+    if (sucursalForSwitch === "delvalle") {
+      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
+      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
+    } else if (sucursalForSwitch === "monterrey") {
+      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    } else if (sucursalForSwitch === "pedregal") {
+      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    } else if (sucursalForSwitch === "guadalajara") {
+      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
+      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
+    } else if (sucursalForSwitch === "puebla") {
+      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    }
+  }, [sucursalForSwitch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     allValidation();
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
-      console.log("Validacion correcta");
-
       try {
         setShowModalLoading(true);
         const token = await new Promise(getToken);
@@ -163,7 +180,6 @@ const FormPago = () => {
         setShowModalMessage(true);
       }
     } else {
-      console.log("Validacion incorrecta");
     }
   };
 
