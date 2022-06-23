@@ -10,13 +10,14 @@ const dataFetch = {
   horarios: ["9:00 AM", "10:00 AM", "11:00 AM"],
 };
 
-const SelectDate = () => {
-  const [labelSelected, setLabelSelected] = useState("Sucursal");
+const SelectDate = ({ sucursales }) => {
+  const [sucursalSelected, setSucursalSelected] = useState("Sucursal");
   const [date, setDate] = useState("");
-  const [sucursalSelected, setSucursalSelected] = useState("");
   const [horaSelected, setHoraSelected] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [horarios, setHorarios] = useState(null);
+  const [actualSucursales, setActualSucursales] = useState([]);
+  const [idSucursal, setIdSucursal] = useState("");
 
   const [showLoading, setShowLoading] = useState(false);
 
@@ -27,23 +28,50 @@ const SelectDate = () => {
   }, [sucursalSelected, date]);
 
   useEffect(() => {
-    if (horarios) {
-      setShowLoading(false);
-    }
-  }, [horarios]);
+    setActualSucursales(sucursales);
+  }, []);
 
-  const getHorarios = () => {
-    if (sucursalSelected && date) {
+  const getHorarios = async () => {
+    if (sucursalSelected !== "Sucursal" && date) {
       setShowLoading(true);
-      setTimeout(() => {
-        setHorarios(dataFetch.horarios);
-      }, 3000);
+
+      try {
+        let myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        let raw = JSON.stringify({
+          idsucursal: idSucursal,
+          fecha: date,
+        });
+
+        let requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+
+        const response = await fetch(
+          "https://us-central1-innate-admin.cloudfunctions.net/app/traerhorarios",
+          requestOptions
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setHorarios(data.horarios_sucursal);
+        } else {
+          setHorarios([]);
+        }
+        setShowLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
   const handleSelect = (e) => {
-    setSucursalSelected(e.target.getAttribute("value"));
-    setLabelSelected(e.target.getAttribute("label"));
+    setIdSucursal(e.target.getAttribute("data-id"));
+    setSucursalSelected(e.target.getAttribute("data-name"));
     setShowOptions(false);
   };
 
@@ -101,7 +129,6 @@ const SelectDate = () => {
   const handleDate = (e) => {
     const dateSelected = e.target.value;
     setDate(dateSelected);
-    console.log(dateSelected);
   };
 
   const handleSelectHorario = (item) => {
@@ -117,11 +144,10 @@ const SelectDate = () => {
           sucursalSelected,
           horaSelected,
           date,
-          labelSucursalSelected: labelSelected,
+          idSucursal,
         },
       });
     } else {
-      console.log("Aun no se selecciona un horario");
     }
   };
 
@@ -217,7 +243,7 @@ const SelectDate = () => {
                 }}
                 onClick={toggleShow}
               >
-                <p>{labelSelected}</p>
+                <p>{sucursalSelected}</p>
                 <div
                   sx={{
                     position: "absolute",
@@ -244,7 +270,7 @@ const SelectDate = () => {
                   Zindex: "",
                 }}
               >
-                {options.map((item, index) => {
+                {actualSucursales.map((item, index) => {
                   return (
                     <div
                       sx={{
@@ -255,12 +281,12 @@ const SelectDate = () => {
                           bg: "#eeeeee",
                         },
                       }}
-                      key={index}
-                      value={item.value}
-                      label={item.label}
+                      key={item.id_sucursal}
+                      data-id={item.id_sucursal}
+                      data-name={item.nombre}
                       onClick={handleSelect}
                     >
-                      {item.label}
+                      {item.nombre}
                     </div>
                   );
                 })}

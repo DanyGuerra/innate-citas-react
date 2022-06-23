@@ -3,6 +3,8 @@ import React, { useEffect, useRef } from "react";
 import { IconCheck, IconExclamation } from "./Icons";
 import { PrimaryButton } from "./Buttons";
 import { useRouter } from "next/router";
+import ModalLoading from "./ModalLoading";
+import ModalMessage from "./ModalMessage";
 
 const inputsInitial = [
   {
@@ -33,33 +35,75 @@ const inputsInitial = [
   },
 ];
 
-const CrearPerfil = () => {
+const CrearPerfilForm = () => {
   const router = useRouter();
   const [inputs, setInputs] = React.useState([]);
+  const [showLoading, setShowLoading] = React.useState(false);
+  const [showMessage, setShowMessage] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
+
+  const {
+    query: { horaSelected, idSucursal },
+  } = router;
 
   useEffect(() => {
     setInputs(inputsInitial);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     allValidation();
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
-      console.log("Validacion correcta");
       const [name, email, phone] = getInputsValues();
-      router.push(
-        {
-          pathname: "/pago",
-          query: {
-            ...router.query,
-            ...name,
-            ...email,
-            ...phone,
-          },
-        },
-        "/pago"
-      );
+      console.log("Validacion correcta");
+      setShowLoading(true);
+
+      try {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          nombre: "Daniel SUB",
+          correo: "daniel@example.com",
+          telefono: "4646443609",
+          edad: "24",
+        });
+
+        var requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+
+        const response = await fetch(
+          "https://us-central1-innate-admin.cloudfunctions.net/app/crearusuario",
+          requestOptions
+        );
+
+        const data = await response.json();
+        console.log(data);
+        setShowLoading(false);
+      } catch (error) {
+        console.error(error);
+        setShowLoading(false);
+        setErrorMessage("Algo salió mal");
+        setShowMessage(true);
+      }
+
+      // router.push(
+      //   {
+      //     pathname: "/pago",
+      //     query: {
+      //       ...router.query,
+      //       ...name,
+      //       ...email,
+      //       ...phone,
+      //     },
+      //   },
+      //   "/pago"
+      // );
     } else {
       console.log("Validacion incorrecta");
     }
@@ -160,6 +204,12 @@ const CrearPerfil = () => {
 
   return (
     <>
+      <ModalMessage
+        show={showMessage}
+        handleClose={() => setShowMessage(false)}
+        message={errorMessage ? errorMessage : "Algo salió mal"}
+      ></ModalMessage>
+      <ModalLoading show={showLoading}></ModalLoading>
       <section
         sx={{
           width: "100%",
@@ -319,4 +369,4 @@ const CrearPerfil = () => {
   );
 };
 
-export default CrearPerfil;
+export default CrearPerfilForm;

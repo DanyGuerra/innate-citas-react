@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 const Confirmacion = () => {
   const router = useRouter();
   const {
-    query: { labelSucursalSelected, horaSelected, date, sucursalSelected },
+    query: { horaSelected, date, sucursalSelected, emailSend },
   } = router;
 
   return (
@@ -75,13 +75,15 @@ const Confirmacion = () => {
           <h1>¡Tu cita ha sido confirmada!</h1>
         </div>
 
-        <p
-          sx={{
-            textAlign: "center",
-          }}
-        >
-          Toda la información ha sido enviada a tu correo.
-        </p>
+        {emailSend == "true" ? (
+          <p
+            sx={{
+              textAlign: "center",
+            }}
+          >
+            Toda la información ha sido enviada a tu correo.
+          </p>
+        ) : null}
 
         <div
           sx={{
@@ -102,9 +104,7 @@ const Confirmacion = () => {
         >
           <div>
             <p className="title-small">Sucursal</p>
-            <p className="title">
-              {labelSucursalSelected ? labelSucursalSelected : ""}
-            </p>
+            <p className="title">{sucursalSelected ? sucursalSelected : ""}</p>
           </div>
           <div>
             <p className="title-small">Fecha</p>

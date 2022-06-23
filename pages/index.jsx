@@ -6,7 +6,7 @@ import PagoForm from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
 import SelectDate from "../src/components/SelectDate";
 
-export default function Home() {
+export default function Home({ sucursales }) {
   return (
     <>
       <Head>
@@ -15,8 +15,16 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <SelectDate></SelectDate>
+      <SelectDate sucursales={sucursales}></SelectDate>
       <Footer></Footer>
     </>
   );
 }
+
+Home.getInitialProps = async () => {
+  const res = await fetch(
+    "https://us-central1-innate-admin.cloudfunctions.net/app/traersucursales"
+  );
+  const json = await res.json();
+  return { sucursales: json.sucursales };
+};

@@ -8,8 +8,8 @@ import ModalLoading from "./ModalLoading";
 import Image from "next/image";
 import conecktaLogo from "../../assets/img/coneckta-logo.png";
 
-let conecktaPublic = "";
-let conecktaPrivate = "";
+let conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
+let conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
 
 const inputsInitial = [
   {
@@ -65,13 +65,7 @@ const FormPago = () => {
   const { query } = router;
 
   const {
-    query: {
-      labelSucursalSelected,
-      horaSelected,
-      date,
-      sucursalSelected,
-      source,
-    },
+    query: { horaSelected, date, sucursalSelected, source },
   } = router;
 
   useEffect(() => {
@@ -80,22 +74,22 @@ const FormPago = () => {
   }, []);
 
   useEffect(() => {
-    if (sucursalForSwitch === "delvalle") {
-      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
-      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
-    } else if (sucursalForSwitch === "monterrey") {
-      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    } else if (sucursalForSwitch === "pedregal") {
-      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    } else if (sucursalForSwitch === "guadalajara") {
-      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
-      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
-    } else if (sucursalForSwitch === "puebla") {
-      conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-      conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    }
+    // if (sucursalForSwitch === "delvalle") {
+    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
+    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
+    // } else if (sucursalForSwitch === "monterrey") {
+    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    // } else if (sucursalForSwitch === "pedregal") {
+    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    // } else if (sucursalForSwitch === "guadalajara") {
+    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
+    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
+    // } else if (sucursalForSwitch === "puebla") {
+    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
+    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
+    // }
   }, [sucursalForSwitch]);
 
   const handleSubmit = async (e) => {
@@ -119,7 +113,7 @@ const FormPago = () => {
               name: orden.customer_info.name,
               email: orden.customer_info.email,
               phone: orden.customer_info.phone,
-              sucursal: labelSucursalSelected,
+              sucursal: sucursalSelected,
               fecha: date.replaceAll("-", "/"),
               hora: horaSelected,
               precio: "1450",
@@ -138,7 +132,7 @@ const FormPago = () => {
               name: orden.customer_info.name,
               email: orden.customer_info.email,
               phone: orden.customer_info.phone,
-              sucursal: labelSucursalSelected,
+              sucursal: sucursalSelected,
               fecha: date.replaceAll("-", "/"),
               hora: horaSelected,
               precio: "1450",
@@ -150,7 +144,7 @@ const FormPago = () => {
             router.push({
               pathname: "/confirmacion",
               query: {
-                labelSucursalSelected,
+                sucursalSelected,
                 horaSelected,
                 date,
                 emailSend: "true",
@@ -161,7 +155,7 @@ const FormPago = () => {
             router.push({
               pathname: "/confirmacion",
               query: {
-                labelSucursalSelected,
+                sucursalSelected,
                 horaSelected,
                 date,
                 emailSend: "false",
@@ -518,9 +512,7 @@ const FormPago = () => {
             </div>
             <div>
               <p className="title">
-                {labelSucursalSelected
-                  ? labelSucursalSelected.toUpperCase()
-                  : ""}
+                {sucursalSelected ? sucursalSelected.toUpperCase() : ""}
               </p>
               <p className="title-small">SUCURSAL</p>
             </div>
