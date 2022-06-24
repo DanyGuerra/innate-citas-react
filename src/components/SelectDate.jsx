@@ -10,7 +10,7 @@ const dataFetch = {
   horarios: ["9:00 AM", "10:00 AM", "11:00 AM"],
 };
 
-const SelectDate = ({ sucursales }) => {
+const SelectDate = ({ sucursales, setPrecio }) => {
   const [sucursalSelected, setSucursalSelected] = useState("Sucursal");
   const [date, setDate] = useState("");
   const [horaSelected, setHoraSelected] = useState("");
@@ -59,6 +59,7 @@ const SelectDate = ({ sucursales }) => {
         if (response.ok) {
           const data = await response.json();
           setHorarios(data.horarios_sucursal);
+          setPrecio(parsePrice(data.precio));
         } else {
           setHorarios([]);
         }
@@ -67,6 +68,10 @@ const SelectDate = ({ sucursales }) => {
         console.error(error);
       }
     }
+  };
+
+  const parsePrice = (string) => {
+    return parseFloat(string);
   };
 
   const handleSelect = (e) => {

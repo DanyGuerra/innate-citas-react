@@ -2,8 +2,10 @@ import "../src/styles/globals.css";
 import { ThemeProvider } from "theme-ui";
 import theme from "../theme";
 import Script from "next/script";
+import { useState } from "react";
 
 function MyApp({ Component, pageProps }) {
+  const [precio, setPrecio] = useState(null);
   return (
     <>
       <Script
@@ -15,7 +17,7 @@ function MyApp({ Component, pageProps }) {
         strategy="lazyOnload"
       ></Script>
       <ThemeProvider theme={theme}>
-        <Component {...pageProps} />
+        <Component {...pageProps} precio={precio} setPrecio={setPrecio} />
       </ThemeProvider>
     </>
   );

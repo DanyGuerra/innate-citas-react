@@ -6,7 +6,7 @@ import PagoForm from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
 import SelectDate from "../src/components/SelectDate";
 
-export default function Home({ sucursales }) {
+export default function Home({ sucursales, setPrecio }) {
   return (
     <>
       <Head>
@@ -15,7 +15,7 @@ export default function Home({ sucursales }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <SelectDate sucursales={sucursales}></SelectDate>
+      <SelectDate sucursales={sucursales} setPrecio={setPrecio}></SelectDate>
       <Footer></Footer>
     </>
   );

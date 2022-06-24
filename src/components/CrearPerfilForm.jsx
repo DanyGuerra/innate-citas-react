@@ -56,7 +56,6 @@ const CrearPerfilForm = () => {
     const validation = checkValidation();
     if (validation.every((el) => el === true)) {
       const [name, email, phone] = getInputsValues();
-      console.log("Validacion correcta");
       setShowLoading(true);
 
       try {
@@ -64,9 +63,9 @@ const CrearPerfilForm = () => {
         myHeaders.append("Content-Type", "application/json");
 
         var raw = JSON.stringify({
-          nombre: "Daniel SUB",
-          correo: "daniel@example.com",
-          telefono: "4646443609",
+          nombre: name.name,
+          correo: email.email,
+          telefono: phone.phone,
           edad: "24",
         });
 
@@ -74,7 +73,6 @@ const CrearPerfilForm = () => {
           method: "POST",
           headers: myHeaders,
           body: raw,
-          redirect: "follow",
         };
 
         const response = await fetch(
@@ -83,7 +81,25 @@ const CrearPerfilForm = () => {
         );
 
         const data = await response.json();
-        console.log(data);
+        if (response.ok) {
+          router.push(
+            {
+              pathname: "/pago",
+              query: {
+                ...router.query,
+                ...name,
+                ...email,
+                ...phone,
+                userId: data.userId,
+              },
+            },
+            "/pago"
+          );
+        } else {
+          setErrorMessage(data.message);
+          setShowMessage(true);
+        }
+
         setShowLoading(false);
       } catch (error) {
         console.error(error);
@@ -91,21 +107,7 @@ const CrearPerfilForm = () => {
         setErrorMessage("Algo salió mal");
         setShowMessage(true);
       }
-
-      // router.push(
-      //   {
-      //     pathname: "/pago",
-      //     query: {
-      //       ...router.query,
-      //       ...name,
-      //       ...email,
-      //       ...phone,
-      //     },
-      //   },
-      //   "/pago"
-      // );
     } else {
-      console.log("Validacion incorrecta");
     }
   };
 

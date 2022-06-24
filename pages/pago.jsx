@@ -3,7 +3,7 @@ import Header from "../src/components/Header";
 import FormPago from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
 
-export default function Pago() {
+export default function Pago({ precio }) {
   return (
     <>
       <Head>
@@ -12,7 +12,7 @@ export default function Pago() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <FormPago></FormPago>
+      <FormPago precio={precio}></FormPago>
       <Footer />
     </>
   );

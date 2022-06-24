@@ -54,7 +54,7 @@ const inputsInitial = [
   },
 ];
 
-const FormPago = () => {
+const FormPago = ({ precio }) => {
   const [inputs, setInputs] = React.useState([]);
   const [showModalMessage, setShowModalMessage] = React.useState(false);
   const [showModalLoading, setShowModalLoading] = React.useState(false);
@@ -65,10 +65,11 @@ const FormPago = () => {
   const { query } = router;
 
   const {
-    query: { horaSelected, date, sucursalSelected, source },
+    query: { horaSelected, date, sucursalSelected, source, userId, idSucursal },
   } = router;
 
   useEffect(() => {
+    console.log(precio);
     setInputs(inputsInitial);
     setSucursalForSwitch(sucursalSelected);
   }, []);
@@ -103,70 +104,122 @@ const FormPago = () => {
         const orden = await pagar(token);
 
         if (orden) {
-          const mailSend = await fetch("api/sendmail/", {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-              name: orden.customer_info.name,
-              email: orden.customer_info.email,
-              phone: orden.customer_info.phone,
-              sucursal: sucursalSelected,
-              fecha: date.replaceAll("-", "/"),
-              hora: horaSelected,
-              precio: "1450",
-              origen: source,
-              order_id: orden.id,
-            }),
+          var myHeaders = new Headers();
+          myHeaders.append("Content-Type", "application/json");
+
+          var raw = JSON.stringify({
+            idsucursal: idSucursal,
+            fecha: date,
+            hora: horaSelected,
+            idusuario: userId,
+            totalpago: precio,
+            idPago: orden.id,
           });
 
-          const dataToSpread = await fetch("/api/spreadsheet/", {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
+          var agendarOptions = {
             method: "POST",
-            body: JSON.stringify({
-              name: orden.customer_info.name,
-              email: orden.customer_info.email,
-              phone: orden.customer_info.phone,
-              sucursal: sucursalSelected,
-              fecha: date.replaceAll("-", "/"),
-              hora: horaSelected,
-              precio: "1450",
-              origen: source,
-            }),
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+          };
+
+          const agendar = await fetch(
+            "https://us-central1-innate-admin.cloudfunctions.net/app/agendarcita",
+            agendarOptions
+          );
+
+          console.log(agendar);
+
+          var datosPago = JSON.stringify({
+            idsucursal: idSucursal,
+            idusuario: userId,
+            totalpago: precio,
+            tipopago: "conekta",
+            idpago: orden.id,
+            cantidadcitas: "1",
           });
 
-          if (mailSend.ok) {
-            router.push({
-              pathname: "/confirmacion",
-              query: {
-                sucursalSelected,
-                horaSelected,
-                date,
-                emailSend: "true",
+          var saveOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: datosPago,
+            redirect: "follow",
+          };
+
+          const guardarPago = await fetch(
+            "https://us-central1-innate-admin.cloudfunctions.net/app/ingresarcobro",
+            saveOptions
+          );
+          const guardarJson = await guardarPago.json();
+
+          console.log(guardarJson);
+
+          if (agendar.ok) {
+            const mailSend = await fetch("api/sendmail/", {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
               },
+              method: "POST",
+              body: JSON.stringify({
+                name: orden.customer_info.name,
+                email: orden.customer_info.email,
+                phone: orden.customer_info.phone,
+                sucursal: sucursalSelected,
+                fecha: date.replaceAll("-", "/"),
+                hora: horaSelected,
+                precio: precio,
+                origen: source,
+                order_id: orden.id,
+              }),
             });
-            setShowModalLoading(false);
-          } else {
-            router.push({
-              pathname: "/confirmacion",
-              query: {
-                sucursalSelected,
-                horaSelected,
-                date,
-                emailSend: "false",
+
+            const dataToSpread = await fetch("/api/spreadsheet/", {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
               },
+              method: "POST",
+              body: JSON.stringify({
+                name: orden.customer_info.name,
+                email: orden.customer_info.email,
+                phone: orden.customer_info.phone,
+                sucursal: sucursalSelected,
+                fecha: date.replaceAll("-", "/"),
+                hora: horaSelected,
+                precio: precio,
+                origen: source,
+              }),
             });
+
+            if (mailSend.ok) {
+              router.push({
+                pathname: "/confirmacion",
+                query: {
+                  sucursalSelected,
+                  horaSelected,
+                  date,
+                  emailSend: "true",
+                },
+              });
+            } else {
+              router.push({
+                pathname: "/confirmacion",
+                query: {
+                  sucursalSelected,
+                  horaSelected,
+                  date,
+                  emailSend: "false",
+                },
+              });
+            }
           }
         } else {
           setShowModalLoading(false);
           setErrorMessage("Algo salió mal");
           setShowModalMessage(true);
         }
+        setShowModalLoading(false);
       } catch (error) {
         console.error(error);
         setShowModalLoading(false);
@@ -508,7 +561,7 @@ const FormPago = () => {
           >
             <div>
               <p>El costo de tu cita es de:</p>
-              <p className="title-price">$1,499.00</p>
+              <p className="title-price">{`$${precio}.00`}</p>
             </div>
             <div>
               <p className="title">
