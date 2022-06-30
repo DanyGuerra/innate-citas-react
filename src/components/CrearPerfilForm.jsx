@@ -82,19 +82,16 @@ const CrearPerfilForm = () => {
 
         const data = await response.json();
         if (response.ok) {
-          router.push(
-            {
-              pathname: "/pago",
-              query: {
-                ...router.query,
-                ...name,
-                ...email,
-                ...phone,
-                userId: data.userId,
-              },
+          router.push({
+            pathname: "/pago",
+            query: {
+              ...router.query,
+              ...name,
+              ...email,
+              ...phone,
+              userId: data.userId,
             },
-            "/pago"
-          );
+          });
         } else {
           setErrorMessage(data.message);
           setShowMessage(true);

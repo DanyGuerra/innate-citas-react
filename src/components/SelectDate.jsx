@@ -18,7 +18,6 @@ const SelectDate = ({ sucursales, setPrecio }) => {
   const [horarios, setHorarios] = useState(null);
   const [actualSucursales, setActualSucursales] = useState([]);
   const [idSucursal, setIdSucursal] = useState("");
-
   const [showLoading, setShowLoading] = useState(false);
 
   const router = useRouter();
@@ -29,6 +28,7 @@ const SelectDate = ({ sucursales, setPrecio }) => {
 
   useEffect(() => {
     setActualSucursales(sucursales);
+    console.log(sucursales);
   }, []);
 
   const getHorarios = async () => {

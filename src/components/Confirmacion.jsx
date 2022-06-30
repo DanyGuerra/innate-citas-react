@@ -70,7 +70,7 @@ const Confirmacion = () => {
               justifyContent: "center",
             }}
           >
-            2
+            4
           </div>
           <h1>¡Tu cita ha sido confirmada!</h1>
         </div>

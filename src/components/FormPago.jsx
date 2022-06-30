@@ -7,9 +7,10 @@ import ModalMessage from "./ModalMessage";
 import ModalLoading from "./ModalLoading";
 import Image from "next/image";
 import conecktaLogo from "../../assets/img/coneckta-logo.png";
+import { gruposSucursales } from "../../lib/grupos-sucursales";
 
-let conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
-let conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
+let conecktaPublic = "";
+let conecktaPrivate = "";
 
 const inputsInitial = [
   {
@@ -69,28 +70,46 @@ const FormPago = ({ precio }) => {
   } = router;
 
   useEffect(() => {
-    console.log(precio);
+    console.log(gruposSucursales);
     setInputs(inputsInitial);
     setSucursalForSwitch(sucursalSelected);
   }, []);
 
   useEffect(() => {
-    // if (sucursalForSwitch === "delvalle") {
-    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
-    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
-    // } else if (sucursalForSwitch === "monterrey") {
-    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    // } else if (sucursalForSwitch === "pedregal") {
-    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    // } else if (sucursalForSwitch === "guadalajara") {
-    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MAIN;
-    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MAIN;
-    // } else if (sucursalForSwitch === "puebla") {
-    //   conecktaPublic = process.env.CONEKTA_PUBLIC_KEY_MINE;
-    //   conecktaPrivate = process.env.CONEKTA_PRIVATE_KEY_MINE;
-    // }
+    if (gruposSucursales.one.includes(sucursalForSwitch)) {
+      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_ONE_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_ONE_DEV;
+      console.log("GRUPO 1");
+    } else if (gruposSucursales.two.includes(sucursalForSwitch)) {
+      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_TWO_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_TWO_DEV;
+      console.log("GRUPO 2");
+    } else if (gruposSucursales.three.includes(sucursalForSwitch)) {
+      conecktaPublic =
+        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_THREE_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_THREE_DEV;
+      console.log("GRUPO 3");
+    } else if (gruposSucursales.four.includes(sucursalForSwitch)) {
+      conecktaPublic =
+        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_FOUR_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_FOUR_DEV;
+      console.log("GRUPO 4");
+    } else if (gruposSucursales.five.includes(sucursalForSwitch)) {
+      conecktaPublic =
+        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_FIVE_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_FIVE_DEV;
+      console.log("GRUPO 5");
+    } else if (gruposSucursales.six.includes(sucursalForSwitch)) {
+      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_SIX_DEV;
+      conecktaPrivate =
+        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_SIX_DEV;
+      console.log("GRUPO 6");
+    }
   }, [sucursalForSwitch]);
 
   const handleSubmit = async (e) => {
@@ -102,6 +121,7 @@ const FormPago = ({ precio }) => {
         setShowModalLoading(true);
         const token = await new Promise(getToken);
         const orden = await pagar(token);
+        console.log(orden);
 
         if (orden) {
           var myHeaders = new Headers();

@@ -1,3 +1,3 @@
 # Citas Innate
 
-Página de citas de Innate
+Application to automate customer registration and payment.

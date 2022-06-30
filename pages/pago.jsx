@@ -3,7 +3,7 @@ import Header from "../src/components/Header";
 import FormPago from "../src/components/FormPago";
 import Footer from "../src/components/Footer";
 
-export default function Pago({ precio }) {
+export default function Pago({ precio, router }) {
   return (
     <>
       <Head>
@@ -12,8 +12,14 @@ export default function Pago({ precio }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <FormPago precio={precio}></FormPago>
+      <FormPago precio={precio} router={router}></FormPago>
       <Footer />
     </>
   );
 }
+
+Pago.getInitialProps = async (context) => {
+  return {
+    router: context,
+  };
+};
