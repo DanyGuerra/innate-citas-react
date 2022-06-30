@@ -28,7 +28,6 @@ const SelectDate = ({ sucursales, setPrecio }) => {
 
   useEffect(() => {
     setActualSucursales(sucursales);
-    console.log(sucursales);
   }, []);
 
   const getHorarios = async () => {

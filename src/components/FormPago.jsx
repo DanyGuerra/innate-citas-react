@@ -7,7 +7,7 @@ import ModalMessage from "./ModalMessage";
 import ModalLoading from "./ModalLoading";
 import Image from "next/image";
 import conecktaLogo from "../../assets/img/coneckta-logo.png";
-import { gruposSucursales } from "../../lib/grupos-sucursales";
+import * as llaves from "../../lib/grupos-sucursales";
 
 let conecktaPublic = "";
 let conecktaPrivate = "";
@@ -70,44 +70,34 @@ const FormPago = ({ precio }) => {
   } = router;
 
   useEffect(() => {
-    console.log(gruposSucursales);
     setInputs(inputsInitial);
     setSucursalForSwitch(sucursalSelected);
   }, []);
 
   useEffect(() => {
-    if (gruposSucursales.one.includes(sucursalForSwitch)) {
-      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_ONE_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_ONE_DEV;
+    if (llaves.gruposSucursales.one.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G1_PUBLIC;
+      conecktaPrivate = llaves.G1_PRIVATE;
       console.log("GRUPO 1");
-    } else if (gruposSucursales.two.includes(sucursalForSwitch)) {
-      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_TWO_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_TWO_DEV;
+    } else if (llaves.gruposSucursales.two.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G2_PUBLIC;
+      conecktaPrivate = llaves.G2_PRIVATE;
       console.log("GRUPO 2");
-    } else if (gruposSucursales.three.includes(sucursalForSwitch)) {
-      conecktaPublic =
-        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_THREE_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_THREE_DEV;
+    } else if (llaves.gruposSucursales.three.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G3_PUBLIC;
+      conecktaPrivate = llaves.G3_PRIVATE;
       console.log("GRUPO 3");
-    } else if (gruposSucursales.four.includes(sucursalForSwitch)) {
-      conecktaPublic =
-        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_FOUR_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_FOUR_DEV;
+    } else if (llaves.gruposSucursales.four.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G4_PUBLIC;
+      conecktaPrivate = llaves.G4_PRIVATE;
       console.log("GRUPO 4");
-    } else if (gruposSucursales.five.includes(sucursalForSwitch)) {
-      conecktaPublic =
-        process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_FIVE_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_FIVE_DEV;
+    } else if (llaves.gruposSucursales.five.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G5_PUBLIC;
+      conecktaPrivate = llaves.G5_PRIVATE;
       console.log("GRUPO 5");
-    } else if (gruposSucursales.six.includes(sucursalForSwitch)) {
-      conecktaPublic = process.env.NEXT_PUBLIC_CONEKTA_PUBLIC_KEY_GROUP_SIX_DEV;
-      conecktaPrivate =
-        process.env.NEXT_PUBLIC_CONEKTA_PRIVATE_KEY_GROUP_SIX_DEV;
+    } else if (llaves.gruposSucursales.six.includes(sucursalForSwitch)) {
+      conecktaPublic = llaves.G6_PUBLIC;
+      conecktaPrivate = llaves.G6_PRIVATE;
       console.log("GRUPO 6");
     }
   }, [sucursalForSwitch]);
@@ -121,7 +111,7 @@ const FormPago = ({ precio }) => {
         setShowModalLoading(true);
         const token = await new Promise(getToken);
         const orden = await pagar(token);
-        console.log(orden);
+        // console.log(orden);
 
         if (orden) {
           var myHeaders = new Headers();
@@ -148,7 +138,7 @@ const FormPago = ({ precio }) => {
             agendarOptions
           );
 
-          console.log(agendar);
+          // console.log(agendar);
 
           var datosPago = JSON.stringify({
             idsucursal: idSucursal,
@@ -172,7 +162,7 @@ const FormPago = ({ precio }) => {
           );
           const guardarJson = await guardarPago.json();
 
-          console.log(guardarJson);
+          // console.log(guardarJson);
 
           if (agendar.ok) {
             const mailSend = await fetch("api/sendmail/", {
